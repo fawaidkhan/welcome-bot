@@ -1,0 +1,46 @@
+import logging
+from telegram import Update
+from telegram.ext import Application, ChatMemberHandler, ContextTypes
+
+# Enable logging to see errors in the console
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+
+async def greet_chat_members(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Greets new users when they join the group chat."""
+    result = update.chat_member.difference().get("status")
+    
+    # Check if the user status changed to 'member' (meaning they just joined)
+    if result and result[1] == "member":
+        user = update.chat_member.new_chat_member.user
+        chat_title = update.chat.title
+        
+        # Customize your welcome message here
+        welcome_text = (
+            f"👋 Welcome to **{chat_title}**, {user.mention_markdown_v2()} \!\n\n"
+            f"We are thrilled to have you here\. Please check the pinned messages\."
+        )
+        
+        await context.bot.send_message(
+            chat_id=update.chat.id,
+            text=welcome_text,
+            parse_mode="MarkdownV2"
+        )
+
+def main() -> None:
+    """Start the bot."""
+    # Insert your BotFather token here
+    TOKEN = "8885601270:AAEnxNw6FLMm0cJ06IWoAoPv5I5YN_5RO-k"
+    
+    # Build the application
+    application = Application.builder().token(TOKEN).build()
+
+    # Handle chat member updates (joins/leaves)
+    application.add_handler(ChatMemberHandler(greet_chat_members, ChatMemberHandler.CHAT_MEMBER))
+
+    # Run the bot until you press Ctrl-C
+    application.run_polling(allowed_updates=[Update.CHAT_MEMBER])
+
+if __name__ == "__main__":
+    main()
