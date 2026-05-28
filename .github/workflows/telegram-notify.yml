@@ -1,0 +1,23 @@
+name: Telegram Notification
+
+on:
+  push:
+    branches: [ main, master ]  # Triggers on pushes to main or master branches
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send message to Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            🚀 New code push to GitHub!
+            
+            Repository: ${{ github.repository }}
+            Commit message: ${{ github.event.head_commit.message }}
+            Author: ${{ github.actor }}
+            
+            See changes: https://github.com{{ github.repository }}/commit/${{ github.sha }}
